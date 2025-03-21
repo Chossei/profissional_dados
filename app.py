@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 import tabulate
+import re
 
 
 # Carregando a base de dados
@@ -14,6 +15,17 @@ base = pd.read_csv('base.csv', sep = ',', encoding = 'utf-8')
 st.title('Análise de dados do profissional da área de dados no Brasil em 2023')
 
 variavel = st.selectbox('Escolha a variável para análise', ['Cargo',  'Carreira', 'Genero', 'Raça', 'Experiencia'])
+
+# Função para aparecer imagem no streamlit
+
+def ajustar_caminho_imagem(texto_markdown):
+    # Expressão regular pra encontrar imagens no markdown
+    padrao = r"!\[.*?\]\((.*?)\)"
+
+    # Substitui o caminho local pelo formato correto para o Streamlit
+    texto_corrigido = re.sub(padrao, r'![](\1)', texto_markdown)
+
+    return texto_corrigido
 
 # Função para analisar a variável
 
@@ -73,6 +85,8 @@ def analisar_salario(variavel, data_new):
 
     return texto_markdown
 
-texto = analisar_salario(variavel, base)
 
-st.markdown(texto)
+texto = analisar_salario(variavel, base)
+texto_final = ajustar_caminho_imagem(texto)
+
+st.markdown(texto_final)
