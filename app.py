@@ -30,7 +30,7 @@ def analisar_salario(variavel, data_new):
     # Criando o boxplot --------------------------------------------------------
     plt.figure(figsize=(10, 6))
     plot = sns.boxplot(
-        x=variavel, y='Salário', data=data_new, showmeans=True, palette="coolwarm",
+        x=variavel, y='Faixa salarial', data=data_new, showmeans=True, palette="coolwarm",
         meanprops={'marker': 'D', 'markerfacecolor': 'red', 'markeredgecolor': 'black', 'markersize': 7}
     )
 
