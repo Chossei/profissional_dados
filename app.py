@@ -52,9 +52,7 @@ def analisar_salario(variavel, data_new):
     plt.close()
 
     # Criar texto Markdown -----------------------------------------------------
-    texto_markdown = f'''## Análise descritiva do Salário por {variavel} no mercado de dados no Brasil, 2023
-
-### 📊 Sumário descritivo estilo R
+    texto_markdown = f'''### 📊 Sumário descritivo estilo R
 {descritivas.to_markdown()}
 
 ---
