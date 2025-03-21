@@ -21,10 +21,19 @@ variavel = st.selectbox('Escolha a variável para análise', ['Cargo',  'Carreir
 def ajustar_caminho_imagem(texto_markdown):
     # Expressão regular pra encontrar imagens no markdown
     padrao = r"!\[.*?\]\((.*?)\)"
+    
+    # Função auxiliar pra converter imagem pra base64
+    def converter_para_base64(match):
+        caminho_imagem = match.group(1)
+        try:
+            with open(caminho_imagem, "rb") as img_file:
+                encoded_string = base64.b64encode(img_file.read()).decode("utf-8")
+            return f'![Imagem](data:image/png;base64,{encoded_string})'
+        except Exception as e:
+            return f"Erro ao carregar imagem: {str(e)}"
 
-    # Substitui o caminho local pelo formato correto para o Streamlit
-    texto_corrigido = re.sub(padrao, r'![](\1)', texto_markdown)
-
+    # Substitui os caminhos de imagem pelo formato base64
+    texto_corrigido = re.sub(padrao, converter_para_base64, texto_markdown)
     return texto_corrigido
 
 # Função para analisar a variável
@@ -89,4 +98,4 @@ def analisar_salario(variavel, data_new):
 texto = analisar_salario(variavel, base)
 texto_final = ajustar_caminho_imagem(texto)
 
-st.markdown(texto_final)
+st.markdown(texto_final, unsafe_allow_html=True)
