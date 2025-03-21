@@ -6,7 +6,7 @@ import streamlit as st
 
 
 # Carregando a base de dados
-base = read_csv('base.csv', sep = ',', encoding = 'utf-8')
+base = pd.read_csv('base.csv', sep = ',', encoding = 'utf-8')
 
 
 # Título e seleção das variáveis a serem analisadas
