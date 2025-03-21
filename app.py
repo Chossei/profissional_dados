@@ -5,6 +5,7 @@ import seaborn as sns
 import streamlit as st
 import tabulate
 import re
+import base64
 
 
 # Carregando a base de dados
