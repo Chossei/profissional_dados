@@ -60,7 +60,7 @@ def analisar_salario(variavel, data_new):
 ---
 
 ### 📈 Visualização gráfica
-![Salario por {variavel}](grafico.png)
+![Salario por {variavel}]({grafico_path})
 
 ---
 
