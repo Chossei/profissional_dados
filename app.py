@@ -52,7 +52,7 @@ def analisar_salario(variavel, data_new):
     plt.close()
 
     # Criar texto Markdown -----------------------------------------------------
-    texto_markdown = f'''### 📊 Sumário descritivo estilo R
+    texto_markdown = f'''### 📊 Sumário descritivo
 {descritivas.to_markdown()}
 
 ---
