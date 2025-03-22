@@ -6,10 +6,11 @@ import streamlit as st
 import tabulate
 import re
 import base64
+import scipy
 
 
 # Carregando a base de dados
-base = pd.read_csv('base.csv', sep = ',', encoding = 'utf-8')
+base = pd.read_csv('base_final.csv', sep = ',', encoding = 'utf-8')
 
 
 # Título e seleção das variáveis a serem analisadas
@@ -96,7 +97,70 @@ def analisar_salario(variavel, data_new):
     return texto_markdown
 
 
+# Função para executar o teste de hipóteses
+
+def teste_normhip(variavel, categoria1, categoria2):
+        texto_final = ''
+        grupo1 = base[base[variavel] == categoria1]['Faixa salarial'].dropna().to_list()
+        grupo2 = base[base[variavel] == categoria2]['Faixa salarial'].dropna().to_list()
+
+        # Teste Shapiro para normalidade
+        norm1 = scipy.stats.shapiro(grupo1)
+        norm2 = scipy.stats.shapiro(grupo2)
+
+        if norm1[1] < 0.05 or norm2[1] < 0.05:
+            texto_final += '''Os dados das categorias não seguem uma distribuição normal. Serão aplicadas transformações para realizar o teste de hipóteses.
+            '''
+            if np.mean(grupo1) > np.median(grupo1) and np.mean(grupo2) > np.median(grupo2):
+                texto_final += '''Como os grupos são assimétricos à direita, para se aproximar de uma normal, utilizaremos transformação logarítmica.
+                '''
+                grupo1 = np.log(grupo1)
+                grupo2 = np.log(grupo2)
+            else:
+                texto_final += '''Os dados são assimétricos. Será aplicada a transformação Box-Cox.
+                '''
+                grupo1 = scipy.stats.boxcox(grupo1)[0]
+                grupo2 = scipy.stats.boxcox(grupo2)[0]
+        else:
+            texto_final = '''Os dados seguem uma distribuição normal.
+            '''
+    
+    # Teste de Bartllet para verificar a variância
+        teste_bartlett = scipy.stats.bartlett(grupo1, grupo2)[1]
+
+        if teste_bartlett > 0.05:
+            p_value = scipy.stats.ttest_ind(grupo1, grupo2)[1]
+        else:
+            p_value = scipy.stats.ttest_ind(grupo1, grupo2, equal_var=False)[1]
+    
+        if p_value < 0.05:
+            resultado = ['menor', 'diferentes']
+        else:
+            resultado = ['maior', 'iguais']
+
+        texto_final += f'''
+- H<sub>0</sub>: μ<sub>{categoria1}</sub>   =   μ<sub>{categoria2}</sub>
+
+- H<sub>1</sub>: μ<sub>{categoria1}</sub>   ≠   μ<sub>{categoria2}</sub>
+
+Como p-value ({round(p_value, 6)}) é {resultado[0]} que 0.05, há evidências estatísticas suficientes para afirmar que as médias das categorias são {resultado[1]}.'''
+    
+        return texto_final
+
 texto = analisar_salario(variavel, base)
 texto_final = ajustar_caminho_imagem(texto)
 
 st.markdown(texto_final, unsafe_allow_html=True)
+
+# Teste de Hipóteses ----------------------------------------------------
+
+st.markdown('---')
+st.markdown('''### 🔍 Teste de Hipóteses para a média''')
+
+lista = pd.Series(base[variavel].unique()).dropna()
+categoria1 = st.selectbox('Escolha a primeira categoria da variável', lista)
+lista2 = lista.loc[lista != categoria1]
+categoria2 = st.selectbox('Escolha a segunda categoria da variável', lista2)
+
+texto_hipoteses = teste_normhip(variavel, categoria1, categoria2)
+st.markdown(texto_hipoteses, unsafe_allow_html = True)
